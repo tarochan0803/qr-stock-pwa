@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>QR Stock PWA</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      padding: 1rem;
+      background: #f8f8f8;
+    }
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    #reader {
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    select,
+    button {
+      width: 100%;
+      max-width: 400px;
+      margin: 0.5rem auto;
+      display: block;
+      font-size: 1.1rem;
+      padding: 0.4rem;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+    button {
+      background: #409cff;
+      color: #fff;
+      border: none;
+    }
+    #status {
+      margin-top: 1rem;
+      min-height: 1.4rem;
+      color: #333;
+      text-align: center;
+    }
+  </style>
+  <link rel="manifest" href="manifest.json" />
+</head>
+<body>
+  <h1>QR Stock</h1>
+  <!-- 操作種別を先に選択 -->
+  <select id="op">
+    <option value="OUT">OUT (出庫)</option>
+    <option value="IN">IN (入庫)</option>
+    <option value="COUNT">COUNT (棚卸し)</option>
+  </select>
+
+  <div id="reader"></div>
+
+  <button id="send">送信</button>
+  <div id="status"></div>
+
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <script>
+    // ★ Google Apps Script ウェブアプリ URL に置き換えてください
+    const SHEET_WEBAPP_URL = "https://script.google.com/a/macros/ncn-se.co.jp/s/AKfycbzdeT8jOysD4CLML9dqteKWjqRsirDerPiRHdVJhy9T2nHHa_KYVuaTxl4w6zvJbVodhw/exec";
+
+    let lastCode = "";
+
+    // QR 読取成功時にコードを保持
+    function onScanSuccess(decodedText) {
+      lastCode = decodedText;
+      document.getElementById("status").textContent = `読み取り成功: ${decodedText}`;
+    }
+
+    // カメラ初期化
+    const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+    scanner.render(onScanSuccess);
+
+    // 送信ボタン
+    document.getElementById("send").addEventListener("click", () => {
+      if (!lastCode) {
+        alert("まず QR をスキャンしてください");
+        return;
+      }
+      const op = document.getElementById("op").value;
+      const payload = {
+        item_id: lastCode,
+        qty_change: 1, // 1 つ読み取り固定
+        op_type: op,
+      };
+      fetch(SHEET_WEBAPP_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+        .then(() => {
+          document.getElementById("status").textContent = "送信完了！";
+          lastCode = ""; // 次のスキャン用にリセット
+        })
+        .catch((err) => {
+          document.getElementById("status").textContent = `送信失敗: ${err}`;
+        });
+    });
+  </script>
+</body>
+</html>
