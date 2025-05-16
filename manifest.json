@@ -1,1 +1,15 @@
-	json\n{\n \"name\": \"QR Stock\",\n \"short_name\": \"QRStock\",\n \"start_url\": \"./\",\n \"display\": \"standalone\",\n \"background_color\": \"#ffffff\",\n \"theme_color\": \"#409cff\",\n \"icons\": [\n {\n \"src\": \"icon-512.png\",\n \"sizes\": \"512x512\",\n \"type\": \"image/png\"\n }\n ]\n}\n
+	{
+	  "name": "QR Stock",
+	  "short_name": "QRStock",
+	  "start_url": "./",
+	  "display": "standalone",
+	  "background_color": "#ffffff",
+	  "theme_color": "#409cff",
+	  "icons": [
+		{
+		  "src": "icon-512.png",
+		  "sizes": "512x512",
+		  "type": "image/png"
+		}
+	  ]
+	}
